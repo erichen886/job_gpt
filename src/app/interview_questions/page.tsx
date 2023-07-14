@@ -5,46 +5,71 @@ export default function Page() {
   const [listenStatus, setListenStatus] = useState("off");
   const [interimTranscript, setInterimTranscript] = useState("");
   const [finalTranscript, setFinalTranscript] = useState("");
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
-  let recognition = new SpeechRecognition();
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = "en-US";
-  recognition.onstart = () => {
-    console.log("start");
-  };
-  recognition.onend = () => {
-    console.log("end");
-    setListenStatus("end");
-  };
-  recognition.onerror = (event: any) => {
-    console.log(event.error);
-  };
 
-  /*
-  TODO: Once there is a pause it becomes final. Might want to look at result Index. It starts off at the next speech portion. 
-  Pausee with resultIndex. So either always start at  i = 0 or you need to add finalTranscript to the iterim? 
-  
-  */
-  //event occurs every time a word is spoken
-  recognition.onresult = (event: any) => {
-    console.log("events should fire");
-    console.log(event);
-    let interim = "";
-    let final = "";
+  interface IRecog {
+    continuous: boolean;
+    interimResults: boolean;
+    onerror: Function;
+    lang: string;
+    onstart: Function;
+    onend: Function;
+    onresult: Function;
+    start: Function;
+    stop: Function;
+  }
+  const [recognition, setRecognition] = useState<IRecog | null>(null);
 
-    for (let i = event.resultIndex; i < event.results.length; ++i) {
-      if (event.results[i].isFinal) {
-        final += interim;
-      } else {
-        interim += event.results[i][0].transcript;
-        setInterimTranscript(interim);
-      }
+  useEffect(() => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    setRecognition(new SpeechRecognition());
+  }, []);
+
+  useEffect(() => {
+    if (recognition) {
+      console.log(recognition);
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
+      recognition.onstart = () => {
+        console.log("start");
+      };
+      recognition.onend = () => {
+        console.log("end");
+        setListenStatus("end");
+      };
+      recognition.onerror = (event: Event) => {
+        console.log(event.error);
+      };
+
+      /*
+    TODO: Once there is a pause it becomes final. Might want to look at result Index. It starts off at the next speech portion. 
+    Pausee with resultIndex. So either always start at  i = 0 or you need to add finalTranscript to the interim? 
+    
+    */
+      //event occurs every time a word is spoken
+      recognition.onresult = (event: Event) => {
+        console.log("events should fire");
+        console.log(event);
+        let interim = "";
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          // console.log(event.resultIndex, "idx");
+          let transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            console.log("here");
+            setFinalTranscript(finalTranscript + `${transcript} `);
+          } else {
+            interim += transcript;
+            setInterimTranscript(interim);
+          }
+
+          console.log(`interim: ${interimTranscript}`);
+          // console.log(`final: ${finalTranscript}`);
+        }
+      };
     }
-
-    setFinalTranscript(final);
-  };
+  }, [recognition, interimTranscript, finalTranscript]);
 
   const updateCountry = () => {};
 
@@ -68,23 +93,31 @@ export default function Page() {
       <div>
         <h2>Transcript</h2>
         <div>
-          <span id="final">{finalTranscript}</span>
+          <span id="final" className="text-orange-400">
+            {finalTranscript}
+          </span>
           <span id="interim">{interimTranscript}</span>
         </div>
       </div>
       <div>
         <button
+          className="bg-gray-200 border-solid border border-black rounded-[4px]"
           onClick={() => {
-            recognition.start();
-            setListenStatus("on");
+            if (recognition) {
+              recognition.start();
+              setListenStatus("on");
+            }
           }}
         >
           Start
         </button>
         <button
+          className="ml-[4px] bg-gray-200 border-solid border border-black rounded-[4px]"
           onClick={() => {
-            recognition.stop();
-            setListenStatus("off");
+            if (recognition) {
+              recognition.stop();
+              setListenStatus("off");
+            }
           }}
         >
           Stop
