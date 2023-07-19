@@ -75,54 +75,68 @@ export default function Page() {
 
   return (
     <>
-      <header>Interview Questions</header>
-      <div>
-        <h2>Select Language</h2>
-        <select
-          name="country"
-          className="form-select"
-          id="select_language"
-          onChange={updateCountry}
-        ></select>
-        <select
-          className="form-select"
-          id="select_dialect"
-          onChange={updateCountry}
-        ></select>
-      </div>
-      <div>
-        <h2>Transcript</h2>
-        <div>
-          <span id="final" className="text-orange-400">
-            {finalTranscript}
-          </span>
-          <span id="interim">{interimTranscript}</span>
+      <header>
+        <h2 className="text-center text-6xl border-2 border-black">
+          Interview Questions
+        </h2>
+      </header>
+      <div className="flex flex-auto justify-between">
+        <div className="flex flex-col basis-1/2 border-green-200 min-h-full">
+          {/*Chat Transcript Section */}
+          <h2>Transcript</h2>
+          <div className="flex flex-auto">
+            <div className="border-black border-2 flex-auto m-4 rounded-[8px]">
+              <span id="final" className="text-orange-400">
+                {finalTranscript}
+              </span>
+              <span id="interim">{interimTranscript}</span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div>
-        <button
-          className="bg-gray-200 border-solid border border-black rounded-[4px]"
-          onClick={() => {
-            if (recognition) {
-              recognition.start();
-              setListenStatus("on");
-            }
-          }}
-        >
-          Start
-        </button>
-        <button
-          className="ml-[4px] bg-gray-200 border-solid border border-black rounded-[4px]"
-          onClick={() => {
-            if (recognition) {
-              recognition.stop();
-              setListenStatus("off");
-            }
-          }}
-        >
-          Stop
-        </button>
-        <p>{listenStatus}</p>
+        <div className="basis-1/2 border-2 border-red-200">
+          {/* Langueage Selection Toolbar */}
+          <div>
+            <h2>Select Language</h2>
+            <select
+              name="country"
+              className="form-select"
+              id="select_language"
+              onChange={updateCountry}
+            ></select>
+            <select
+              className="form-select"
+              id="select_dialect"
+              onChange={updateCountry}
+            ></select>
+          </div>
+
+          {/*Record controls */}
+          <div>
+            <button
+              className="bg-gray-200 border-solid border border-black rounded-[4px]"
+              onClick={() => {
+                if (recognition) {
+                  recognition.start();
+                  setListenStatus("on");
+                }
+              }}
+            >
+              Start
+            </button>
+            <button
+              className="ml-[4px] bg-gray-200 border-solid border border-black rounded-[4px]"
+              onClick={() => {
+                if (recognition) {
+                  recognition.stop();
+                  setListenStatus("off");
+                }
+              }}
+            >
+              Stop
+            </button>
+            <p>{listenStatus}</p>
+          </div>
+        </div>
       </div>
     </>
   );
